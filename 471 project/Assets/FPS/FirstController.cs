@@ -9,7 +9,7 @@ public class FIRSTCONTROLLER : MonoBehaviour
     float cameraUpRotation = 0;
     CharacterController controller;
     
-    [SerializeField] float speed = 15f;
+    [SerializeField] float speed = 18f;
     [SerializeField] float mouseSensitivity = 2.0f;
     [SerializeField] float jumpHeight = 1.0f;
     [SerializeField] float gravity = -9.81f;
