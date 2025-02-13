@@ -49,6 +49,10 @@ public class FIRSTCONTROLLER : MonoBehaviour
         float moveZ = movement.y;
 
         Vector3 actual_movement = (transform.forward * moveZ) + (transform.right * moveX);
+
+
+
+
         controller.Move(actual_movement * Time.deltaTime * speed);
 
         velocity.y += gravity * Time.deltaTime;
