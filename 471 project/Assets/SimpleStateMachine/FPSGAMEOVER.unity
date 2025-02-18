@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 1261315767}
   - component: {fileID: 1261315766}
   - component: {fileID: 1261315765}
-  - component: {fileID: 1261315764}
+  - component: {fileID: 1261315768}
   m_Layer: 5
   m_Name: DIED
   m_TagString: Untagged
@@ -138,18 +138,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1261315764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1261315763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d33a8841aaf37d5409c58631360e4a89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1261315765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,6 +256,18 @@ RectTransform:
   m_AnchoredPosition: {x: -94.278625, y: 104.21216}
   m_SizeDelta: {x: 561, y: 328}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1261315768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261315763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d33a8841aaf37d5409c58631360e4a89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1314102713
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,7 +546,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1261315764}
+      - m_Target: {fileID: 1261315768}
         m_TargetAssemblyTypeName: managegame, Assembly-CSharp
         m_MethodName: PlayGame
         m_Mode: 1
