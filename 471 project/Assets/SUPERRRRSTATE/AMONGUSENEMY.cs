@@ -176,10 +176,14 @@ void OnAttack()
 
         if (Physics.Raycast(transform.position, transform.forward, out hit, 10))
         {
-            FIRSTCONTROLLER player = hit.transform.gameObject.GetComponent<FIRSTCONTROLLER>();
+            PlayerStateManager player = hit.transform.gameObject.GetComponent<PlayerStateManager>();
             if (player != null)
             {
-                return hit.transform.gameObject;
+                if (player.currentState != player.sneakState)
+                {
+                    print(hit.transform.gameObject);
+                    return hit.transform.gameObject;
+                }
             }
         }
 
