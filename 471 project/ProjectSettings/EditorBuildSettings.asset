@@ -6,17 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SimpleStateMachine/SImpleState.unity
-    guid: 6e221c833e5ded94a9e0fb83aee08375
+    path: Assets/SUPERRRRSTATE/superstate.unity
+    guid: dc0a69ed280a31243925292c134e9077
   - enabled: 1
-    path: Assets/SimpleStateMachine/FPSGAMEOVER.unity
+    path: Assets/SUPERRRRSTATE/FPSGAMEOVER.unity
     guid: f7e510478d2b5754eba0b3e085e99139
   - enabled: 1
-    path: Assets/SimpleStateMachine/YOU WIN.unity
+    path: Assets/SUPERRRRSTATE/YOU WIN.unity
     guid: 7b58f703e3995a24a94850dc87c96624
-  - enabled: 1
-    path: Assets/FPS/FPS.unity
-    guid: f8e4f6c33a6be0e448eee4556bdff348
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

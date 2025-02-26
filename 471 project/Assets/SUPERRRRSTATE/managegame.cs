@@ -14,6 +14,6 @@ public class managegame : MonoBehaviour
     
     public void PlayGame()
     {
-        SceneManager.LoadSceneAsync("SimpleState");
+        SceneManager.LoadSceneAsync("superstate");
     }
 }

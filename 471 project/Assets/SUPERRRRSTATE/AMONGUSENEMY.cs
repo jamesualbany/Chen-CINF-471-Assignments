@@ -74,6 +74,15 @@ public class AMONGUSENEMY : MonoBehaviour
 {
     if (target == null) return;
 
+    // Check if the player is sneaking, if they are, stop following them
+    PlayerStateManager playerState = target.GetComponent<PlayerStateManager>();
+    if (playerState != null && playerState.IsSneaking)
+    {
+        currentState = State.Pace; // Switch back to pacing if sneaking
+        return;
+    }
+
+    // Move towards the player and rotate smoothly
     MoveTo(target);
 
     float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
@@ -87,63 +96,62 @@ public class AMONGUSENEMY : MonoBehaviour
     // If the player is not detected, switch back to Pace
     GameObject obstacle = CheckForward();
     if (obstacle != null && obstacle.CompareTag("Player"))
-{
-    target = obstacle;
-    currentState = State.Follow;
-}
-
-}
-
-IEnumerator StartAttack()
-{
-    yield return new WaitForSeconds(0.2f);  // Small delay to avoid flickering
-    currentState = State.Attack;
-}
-
-void OnAttack()
-{
-    if (target == null) return;
-
-    float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
-
-    if (distanceToTarget >= attackRange + 1.0f)  // Add buffer zone before switching back
     {
+        target = obstacle;
         currentState = State.Follow;
-        return;
+    }
+}
+
+
+    IEnumerator StartAttack()
+    {
+        yield return new WaitForSeconds(0.2f);  // Small delay to avoid flickering
+        currentState = State.Attack;
     }
 
-    if (Time.time - lastAttackTime >= attackCooldown)
+    void OnAttack()
     {
-        fpshealth playerHealth = target.GetComponent<fpshealth>();
-        if (playerHealth != null)
+        if (target == null) return;
+
+        float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+
+        if (distanceToTarget >= attackRange + 1.0f)  // Add buffer zone before switching back
         {
-            playerHealth.TakeDamage(10);
-            lastAttackTime = Time.time;
-            Debug.Log("Enemy attacked the player!");
+            currentState = State.Follow;
+            return;
+        }
+
+        if (Time.time - lastAttackTime >= attackCooldown)
+        {
+            fpshealth playerHealth = target.GetComponent<fpshealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(10);
+                lastAttackTime = Time.time;
+                Debug.Log("Enemy attacked the player!");
+            }
         }
     }
-}
-
 
     void OnTriggerEnter(Collider other)
-{
-    // Check if the object that hit the enemy is a bullet
-    Bullet bullet = other.GetComponent<Bullet>();
-    if (bullet != null)
     {
-        TakeDamage(10);
-        Destroy(other.gameObject);  // Destroy the bullet after impact
-        Debug.Log("Enemy hit by a bullet!");
-        return;  // Exit to avoid unnecessary checks
-    }
+        // Check if the object that hit the enemy is a bullet
+        Bullet bullet = other.GetComponent<Bullet>();
+        if (bullet != null)
+        {
+            TakeDamage(10);
+            Destroy(other.gameObject);  // Destroy the bullet after impact
+            Debug.Log("Enemy hit by a bullet!");
+            return;  // Exit to avoid unnecessary checks
+        }
 
-    // If a player enters the trigger, switch to follow mode
-    if (other.CompareTag("Player"))
-    {
-        target = other.gameObject;
-        currentState = State.Follow;
+        // If a player enters the trigger, switch to follow mode
+        if (other.CompareTag("Player"))
+        {
+            target = other.gameObject;
+            currentState = State.Follow;
+        }
     }
-}
 
     public void TakeDamage(int damage)
     {
@@ -161,32 +169,38 @@ void OnAttack()
         Destroy(gameObject);
     }
 
-    
-
+    // Move the enemy smoothly towards the target and rotate towards it
     void MoveTo(GameObject t)
     {
+        // Move towards the target
         transform.position = Vector3.MoveTowards(transform.position, t.transform.position, speed * Time.deltaTime);
-        transform.LookAt(t.transform, Vector3.up);
-    }
 
-    GameObject CheckForward()
-    {
-        RaycastHit hit;
-        Debug.DrawRay(transform.position, transform.forward * 10, Color.green);
-
-        if (Physics.Raycast(transform.position, transform.forward, out hit, 10))
+        // Smooth rotation towards the target
+        Vector3 directionToTarget = t.transform.position - transform.position;
+        if (directionToTarget.sqrMagnitude > 0.01f)  // Avoid unnecessary rotation when very close
         {
-            PlayerStateManager player = hit.transform.gameObject.GetComponent<PlayerStateManager>();
-            if (player != null)
-            {
-                if (player.currentState != player.sneakState)
-                {
-                    print(hit.transform.gameObject);
-                    return hit.transform.gameObject;
-                }
-            }
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.1f);
         }
-
-        return null;
     }
+
+   GameObject CheckForward()
+{
+    RaycastHit hit;
+    Debug.DrawRay(transform.position, transform.forward * 10, Color.green);
+
+    if (Physics.Raycast(transform.position, transform.forward, out hit, 10))
+    {
+        PlayerStateManager player = hit.transform.gameObject.GetComponent<PlayerStateManager>();
+        
+        // If the player is found and is sneaking, ignore them and do not follow
+        if (player != null && !player.IsSneaking)  // Only follow if the player is not sneaking
+        {
+            return hit.transform.gameObject;
+        }
+    }
+
+    return null;  // Return null if no player is detected or the player is sneaking
+}
+
 }
