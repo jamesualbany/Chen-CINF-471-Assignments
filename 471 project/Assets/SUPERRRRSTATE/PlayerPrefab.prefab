@@ -328,8 +328,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement: {x: 0, y: 0}
+  playerCamera: {fileID: 0}
+  mouseSensitivity: 30
   default_speed: 1
+  run_speed: 5
+  jump_force: 1
   IsSneaking: 0
+  IsRunning: 0
+  IsJumping: 0
+  gravity: -15
+  isGrounded: 0
+  bulletSpawner: {fileID: 0}
+  bulletPrefab: {fileID: 0}
+  fallThreshold: -10
+  playerHealth: 100
 --- !u!1 &7185336361729487484
 GameObject:
   m_ObjectHideFlags: 0

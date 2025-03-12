@@ -10,12 +10,13 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector] public PlayerSneakState sneakState = new PlayerSneakState();
     [HideInInspector] public PlayerRunState runState = new PlayerRunState();
     [HideInInspector] public PlayerJumpState jumpState = new PlayerJumpState();
+    [HideInInspector] public PlayerDoubleJumpState doubleJumpState = new PlayerDoubleJumpState();
 
     [HideInInspector] public Vector2 movement;
-    private Vector2 lookInput;
+    public Vector2 lookInput;
     public Transform playerCamera;
     public float mouseSensitivity = 30f;
-    private float xRotation = 0f;
+    public float xRotation = 0f;
 
     public float default_speed = 1;
     public float run_speed = 5;
@@ -24,9 +25,14 @@ public class PlayerStateManager : MonoBehaviour
     public bool IsRunning = false;
     public bool IsJumping = false;
     CharacterController controller;
-    Vector3 velocity;
+    public Vector3 velocity;
     public float gravity = -15f;
     public bool isGrounded;
+
+    private bool hasDoubleJumped = false;  // Added to track double jump status
+    private float lastJumpTime = -100f;  // Timestamp for last jump (added to the PlayerStateManager)
+
+    public float doubleJumpWindow = 0.3f; 
 
     // Bullet-related variables
     public Transform bulletSpawner;
@@ -59,7 +65,6 @@ public class PlayerStateManager : MonoBehaviour
             // Check movement to restore the correct state after landing
             if (movement.magnitude > 0.1f)
             {
-                // If moving, switch to walking or running depending on the movement
                 if (IsRunning)
                     SwitchState(runState);
                 else
@@ -67,7 +72,6 @@ public class PlayerStateManager : MonoBehaviour
             }
             else
             {
-                // If not moving, return to idle state
                 SwitchState(idleState);
             }
         }
@@ -77,7 +81,7 @@ public class PlayerStateManager : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
 
         HandleMouseLook();
-        HandleShooting(); // Handle shooting input
+        HandleShooting();
 
         if (transform.position.y < fallThreshold)
         {
@@ -121,16 +125,26 @@ public class PlayerStateManager : MonoBehaviour
         }
     }
 
-    void OnJump()
+   void OnJump()
     {
-        if (isGrounded && !IsJumping)
+        if (isGrounded)
         {
-            // Store the current state before jumping
-            previousState = currentState;
-            IsJumping = true;
-            SwitchState(jumpState);
+            // Perform the normal jump
+            JumpPlayer();
+            lastJumpTime = Time.time; // Record jump time
+            hasDoubleJumped = false;   // Reset double jump flag
+        }
+        else
+        {
+            // Double jump logic
+            if (Time.time - lastJumpTime <= doubleJumpWindow && !hasDoubleJumped)
+            {
+                SwitchState(doubleJumpState);  // Switch to double jump state
+                doubleJumpState.RecordJumpTime(); // Record jump time for double jump
+            }
         }
     }
+
 
     void HandleShooting()
     {
@@ -143,43 +157,19 @@ public class PlayerStateManager : MonoBehaviour
 
     void FireBullet()
     {
-        // Check if the bulletPrefab exists
-        if (bulletPrefab == null)
+        if (bulletPrefab == null || bulletSpawner == null)
         {
-            Debug.LogError("❌ bulletPrefab is NULL! Assign it in the Inspector.");
+            Debug.LogError("❌ Bullet Prefab or Spawner is missing.");
             return;
         }
 
-        // Check if the bulletSpawner exists
-        if (bulletSpawner == null)
-        {
-            Debug.LogError("❌ bulletSpawner is NULL! Assign it in the Inspector.");
-            return;
-        }
-
-        // Spawn the bullet
         GameObject newBullet = Instantiate(bulletPrefab, bulletSpawner.transform.position, bulletSpawner.transform.rotation);
-
-        if (newBullet == null)
-        {
-            Debug.LogError("❌ Failed to instantiate bullet!");
-            return;
-        }
-
-        Debug.Log("✅ Bullet spawned successfully: " + newBullet.name);
-
-        // Add Rigidbody force
         Rigidbody rb = newBullet.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.linearVelocity = bulletSpawner.transform.forward * 20f;
         }
-        else
-        {
-            Debug.LogError("❌ Bullet has no Rigidbody attached!");
-        }
 
-        // Destroy after 5 seconds
         Destroy(newBullet, 5f);
     }
 
@@ -200,8 +190,9 @@ public class PlayerStateManager : MonoBehaviour
 
     public void SwitchState(PlayerBaseState newState)
     {
+        currentState?.ExitState(this); // Exit the current state
         currentState = newState;
-        currentState.EnterState(this);
+        currentState.EnterState(this); // Enter the new state
     }
 
     private void HandleMouseLook()
@@ -217,12 +208,13 @@ public class PlayerStateManager : MonoBehaviour
     }
 
     public void JumpPlayer()
+{
+    if (isGrounded)
     {
-        if (isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(jump_force * -2f * gravity);
-        }
+        velocity.y = Mathf.Sqrt(jump_force * -2f * gravity); // Regular jump
     }
+}
+
 
     void Die()
     {
